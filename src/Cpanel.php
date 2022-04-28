@@ -194,7 +194,7 @@ class Cpanel extends xmlapi
         $result = $this->api2_query($username, 'SubDomain', 'addsubdomain', array(
                 'domain' => $subdomain,
                 'rootdomain' => $domain,
-                'dir' => '/public_html/' . $subdomain_dir,
+                'dir'         => $subdomain_dir,
                 'disallowdot' => 1
             )
         );
@@ -207,6 +207,19 @@ class Cpanel extends xmlapi
      * @param string $main_domain
      * @return array|mixed
      */
+    
+    public function createEmailAccount( $email,$password,$quota=500, $main_domain = '') {
+         $result = $this->api2_query($this->username, 'Email', 'addpop', array(
+                                                                         'domain'        => $main_domain,
+                                                                         'email'         => $email,
+                                                                         'password'      => $password,
+                                                                         'quota'         => $quota
+                                                                         )
+                                     );
+
+         return $this->returnResult($result);
+     }
+    
     public function removeSubdomain($subdomain, $main_domain = '')
     {
 
@@ -250,9 +263,9 @@ class Cpanel extends xmlapi
 
         $name_length = 54 - strlen($this->username);
 
-        $db_name = str_replace($this->username . '_', '', $this->slug($db_name, '_'));
-        $database_name = $this->username . "_" . $db_name;
-
+        // $db_name = str_replace($this->username . '_', '', $this->slug($db_name, '_'));
+        // $database_name = $this->username . "_" . $db_name;
+        $database_name = $db_name;
         if (strlen($db_name) > $name_length || strlen($db_name) < 4) {
             return array('reason' => 'Database name should be greater than 4 and less than ' . $name_length . ' characters.', 'result' => 0);
         }
@@ -301,11 +314,12 @@ class Cpanel extends xmlapi
         }
 
         $user_length = 16 - strlen($this->username);
-        $db_user = str_replace($this->username . '_', '', $this->slug($db_user, '_'));
+       /* $db_user = str_replace($this->username . '_', '', $this->slug($db_user, '_'));
         $dbuser = $this->username . "_" . $db_user;
-
+       */
+        $dbuser = $db_user;
         if (strlen($db_user) > $user_length || strlen($db_user) < 4) {
-            return array('reason' => 'Database username should be greater than 4 and less than ' . $user_length . ' characters.', 'result' => 0);
+            // return array('reason' => 'Database username should be greater than 4 and less than ' . $user_length . ' characters.', 'result' => 0);
         }
 
         $validate = $this->checkPassword($db_pass);
@@ -316,9 +330,9 @@ class Cpanel extends xmlapi
 
         $user = $this->checkdbuser($dbuser);
 
-        if ($user['result'] == 1) {
-            return array('reason' => 'Database user ' . $dbuser . ' already exist.', 'result' => '0');
-        } else {
+        //if ($user['result'] == 1) {
+         //   return array('reason' => 'Database user ' . $dbuser . ' already exist.', 'result' => '0');
+      //  } else {
             $user = $this->api2_query(
                 $this->username,
                 "MysqlFE",
@@ -336,8 +350,7 @@ class Cpanel extends xmlapi
      * @param string $privileges
      * @return array|mixed
      */
-    protected function setdbuser($db_name, $db_user, $privileges = '')
-    {
+      public function setdbuser($db_name, $db_user, $privileges = '') {
 
         if (!isset($db_name) || !isset($db_user)) {
             $msg = "Database name and username is required.";
@@ -345,9 +358,10 @@ class Cpanel extends xmlapi
             return array('reason' => $msg, 'result' => 0);
         }
 
-        $dbname = $this->username . "_" . str_replace($this->username . '_', '', $db_name);
-        $dbuser = $this->username . '_' . ($db_user ? str_replace($this->username . '_', '', $db_user) : "myadmin"); //be careful this can only have a maximum of 7 characters
-
+      // $dbname = $this->username . "_" . str_replace($this->username . '_', '', $db_name);
+     // $dbuser = $this->username . '_' . ($db_user ? str_replace($this->username . '_', '', $db_user) : "myadmin"); //be careful this can only have a maximum of 7 characters
+         $dbname = $db_name;
+         $dbuser = $db_user;
         if (is_array($privileges)) {
             $privileges = implode(',', $privileges);
         }
